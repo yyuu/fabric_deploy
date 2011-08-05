@@ -1,0 +1,10 @@
+/*.orig
+/*~
+/.*.swo
+/.*.swp
+/build/*
+/dist/*
+/fabric_deploy/*.pyc
+/fabric_deploy/*.pyo
+/fabric_deploy/.*.swo
+/fabric_deploy/.*.swp

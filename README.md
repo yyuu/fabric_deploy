@@ -75,6 +75,7 @@ following exapmle consists from 2 files of `"./fabfile/__init__.py" and "./fabfi
 "./fabfile/deploy.py"
 
     from fabric_deploy.deploy import *
+    from fabric_deploy import deploy
     
     @task
     @roles('app')
@@ -83,6 +84,7 @@ following exapmle consists from 2 files of `"./fabfile/__init__.py" and "./fabfi
         result = sudo("""
           (test -f {supervisord_pid} && kill -HUP `cat {supervisord_pid}`) || {virtualenv}/bin/supervisord -c {supervisord_conf}
         """.format(**var('virtualenv', 'supervisord_pid', 'supervisord_conf')), user=fetch('runner'))
+    deploy.restart = restart
 
 
 ## author

@@ -64,7 +64,9 @@ def setup_pybundle():
   with settings(warn_only=True):
     requirement = 'packages.txt'
     result = local("""
-      rm -f {requirement} && pip freeze --local > {requirement} && pip bundle --requirement={requirement} {application}.pybundle
+      if ! test -f {application}.pybundle; then
+        ( test -f {requirement} || pip freeze --local > {requirement} ) && pip bundle --requirement={requirement} {application}.pybundle;
+      fi
     """.format(**var('application', requirement=requirement)))
     if result.failed:
       error('failed to create pybundle.')

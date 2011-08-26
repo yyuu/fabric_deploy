@@ -21,6 +21,13 @@ class LocalCacheStrategy(Strategy):
     if cached_path is None:
       abort('cached_path is None')
 
+## deploy sub tree of the repository if deploy_subdir was specified.
+    deploy_subdir = fetch('deploy_subdir')
+    if deploy_subdir is not None:
+      while 0 < len(deploy_subdir) and deploy_subdir.startswith('/'):
+        deploy_subdir = deploy_subdir[1:]
+      cached_path = os.path.join(cached_path, deploy_subdir)
+
     source = fetch('source')
     revision = fetch('revision')
     project.rsync_project(local_dir='./', remote_dir=cached_path, delete=True)
@@ -42,6 +49,13 @@ class RemoteCacheStrategy(Strategy):
     cached_path = fetch('cached_path')
     if cached_path is None:
       abort('cached_path is None')
+
+## deploy sub tree of the repository if deploy_subdir was specified.
+    deploy_subdir = fetch('deploy_subdir')
+    if deploy_subdir is not None:
+      while 0 < len(deploy_subdir) and deploy_subdir.startswith('/'):
+        deploy_subdir = deploy_subdir[1:]
+      cached_path = os.path.join(cached_path, deploy_subdir)
 
     source = fetch('source')
     revision = fetch('revision')

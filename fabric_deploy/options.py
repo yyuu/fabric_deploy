@@ -88,12 +88,17 @@ source_table = {
 cset('source', (lambda: source_table.get(fetch('scm'))()))
 cset('revision', (lambda: fetch('source').head()))
 
+## specify deployment strategy. only local_cache is available as of now.
 cset('deploy_via', 'local_cache')
 strategy_table = {
   'local_cache': strategy.LocalCacheStrategy,
 }
 cset('strategy', (lambda: strategy_table.get(fetch('deploy_via'))()))
 
+## application runner user.
 cset('runner', 'app')
+
+## deploy sub tree of the repository if deploy_subdir was specified.
+#cset('deploy_subdir', 'path/to/somewhere')
 
 # vim:set ft=python :

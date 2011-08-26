@@ -13,13 +13,14 @@ def list_variables():
   immediate_keys = [
     "application",
     "branch",
-    "cached_path"
-    "current_path"
+    "cached_path",
+    "current_path",
+    "deploy_subdir",
     "deploy_to",
     "deploy_via",
     "git_enable_submodules",
     "group_writable",
-    "latest_release"
+    "latest_release",
     "pybundle_path",
     "release_name",
     "release_path",

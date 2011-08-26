@@ -92,9 +92,9 @@ def update():
 def update_code():
   try:
     fetch('strategy').deploy()
-  except Exception, error:
+  except Exception, e:
     run('rm -rf {latest_release}; true'.format(**var('latest_release')))
-    error('failed to update code.')
+    error('failed to update code. ({reason})'.format(reason=str(e)))
 
   finalize_update()
 

@@ -17,6 +17,9 @@ class SCM(object):
   def checkout(self, *args, **kwargs):
     raise(NotImplementedError())
 
+  def repository_path(self, path):
+    raise(NotImplementedError())
+
 class Git(SCM):
   def head(self):
     return fetch('branch')
@@ -50,12 +53,30 @@ class Git(SCM):
   def __str__(self):
     return "git"
 
+  def repository_path(self, path):
+    repository = path
+    while not os.path.isdir(os.path.join(repository, '.git')):
+      repository = os.path.realpath(os.path.join(repository, '..'))
+    return repository
+
 class Subversion(SCM):
   def __str__(self):
     return "subversion"
 
+  def repository_path(self, path):
+    repository = path
+    while os.path.isdir(os.path.join(repository, '.svn')):
+      repository = os.path.realpath(os.path.join(repository, '..'))
+    return repository
+
 class Mercurial(SCM):
   def __str__(self):
     return "mercurial"
+
+  def repository_path(self, path):
+    repository = path
+    while not os.path.isdir(os.path.join(repository, '.hg')):
+      repository = os.path.realpath(os.path.join(repository, '..'))
+    return repository
 
 # vim:set ft=python :

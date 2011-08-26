@@ -1,8 +1,8 @@
-# fabric-deploy-recipe
+# fabric_deploy
 
 ## overview
 
-capistrano like deploy recipe for Fabric.
+Capistrano like deploy recipe for Fabric.
 
 
 ## requirements
@@ -35,29 +35,34 @@ clean up old applications.
 ## examples
 
 this is a sample tasks for multistage deployment ("development" and "production").
-uses "supervisord" for service management.
+uses "supervisor" for service management.
 
-following exapmle consists from 2 files of `"./fabfile/__init__.py" and "./fabfile/__init__.py".
+following exapmle consists from 2 files of "./fabfile/\__init\__.py" and "./fabfile/deploy.py".
 
-* "./fabfile/__init__.py"
+* "./fabfile/\__init\__.py"
 ** basic configuration for deployment
 * "./fabfile/deploy.py"
-** overridden tasks for deployment
+** overridden tasks for your deployment
 
-"./fabfile/__init__.py"
+"./fabfile/\__init\__.py"
 
     from fabric.api import *
     from fabric_deploy import options
     import deploy
     
     options.set('scm', 'git')
-    options.set('application', 'konjak')
-    options.set('repository', 'ssh://git@git.geishatokyo.com:10022/srv/repos/git/yyuu/konjak.git')
-    options.set('service_name', (lambda: '{app}.{env}'.format(app=options.fetch('application'), env=options.fetch('current_stage'))))
-    options.set('virtualenv', (lambda: '{dir}/virtualenv'.format(dir=fetch('shared_path'))))
-    options.set('supervisord_pid', (lambda: '{dir}/tmp/pids/supervisord.pid'.format(dir=options.fetch('current_path'))))
-    options.set('supervisord_conf', (lambda: '{dir}/supervisord.conf'.format(dir=options.fetch('current_path'))))
-    options.set('pybundle_path', (lambda: '{dir}/system/konjak.pybundle'.format(dir=fetch('shared_path'))))
+    options.set('application', 'myapp')
+    options.set('repository', 'git@githum.com:yyuu/myapp.git')
+    options.set('service_name',
+      (lambda: '{app}.{env}'.format(app=options.fetch('application'), env=options.fetch('current_stage'))))
+    options.set('virtualenv',
+      (lambda: '{dir}/virtualenv'.format(dir=fetch('shared_path'))))
+    options.set('supervisord_pid',
+      (lambda: '{dir}/tmp/pids/supervisord.pid'.format(dir=options.fetch('current_path'))))
+    options.set('supervisord_conf',
+      (lambda: '{dir}/supervisord.conf'.format(dir=options.fetch('current_path'))))
+    options.set('pybundle_path',
+      (lambda: '{dir}/system/myapp.pybundle'.format(dir=fetch('shared_path'))))
     
     @task
     def development():

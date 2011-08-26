@@ -47,10 +47,15 @@ class Git(SCM):
     execute.append('{git} clean -d -x -f'.format(**kwargs))
     return ' && '.join(execute)
 
+  def __str__(self):
+    return "git"
+
 class Subversion(SCM):
-  pass
+  def __str__(self):
+    return "subversion"
 
 class Mercurial(SCM):
-  pass
+  def __str__(self):
+    return "mercurial"
 
 # vim:set ft=python :

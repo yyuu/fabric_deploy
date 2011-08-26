@@ -34,6 +34,9 @@ class LocalCacheStrategy(Strategy):
                revision=revision,
                release_path=fetch('release_path')))
 
+  def __str__(self):
+    return "local_cache"
+
 class RemoteCacheStrategy(Strategy):
   def deploy(self):
     cached_path = fetch('cached_path')
@@ -51,5 +54,8 @@ class RemoteCacheStrategy(Strategy):
                latest_release=latest_release,
                revision=revision,
                release_path=fetch('release_path')))
+
+  def __str__(self):
+    return "remote_cache"
 
 # vim:set ft=python :

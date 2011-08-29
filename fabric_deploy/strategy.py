@@ -42,7 +42,7 @@ class LocalCacheStrategy(Strategy):
 
     latest_release = fetch('latest_release')
     run("""
-      rsync -lrpt --chmod=Dgo+rx,F=r {cached_path}/* {latest_release} && (echo {revision} > {release_path}/REVISION)
+      rsync -lrpt --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r {cached_path}/* {latest_release} && (echo {revision} > {release_path}/REVISION)
     """.format(cached_path=self._remote_cache_subdir(cached_path),
                latest_release=latest_release,
                revision=revision,
@@ -63,7 +63,7 @@ class RemoteCacheStrategy(Strategy):
 
     latest_release = fetch('latest_release')
     run("""
-      rsync -lrpt --chmod=Dgo+rx,F=r {cached_path}/* {latest_release} && (echo {revision} > {release_path}/REVISION)
+      rsync -lrpt --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r {cached_path}/* {latest_release} && (echo {revision} > {release_path}/REVISION)
     """.format(cached_path=self._remote_cache_subdir(cached_path),
                latest_release=latest_release,
                revision=revision,

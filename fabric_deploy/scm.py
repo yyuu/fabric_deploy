@@ -17,7 +17,7 @@ class SCM(object):
   def checkout(self, *args, **kwargs):
     raise(NotImplementedError())
 
-  def repository_path(self, path):
+  def repository_path(self, path="."):
     raise(NotImplementedError())
 
 class Git(SCM):
@@ -53,30 +53,45 @@ class Git(SCM):
   def __str__(self):
     return "git"
 
-  def repository_path(self, path):
-    repository = path
-    while not os.path.isdir(os.path.join(repository, '.git')):
-      repository = os.path.realpath(os.path.join(repository, '..'))
-    return repository
+  def repository_path(self, path="."):
+    realpath = os.path.realpath(path)
+    repository = os.path.join(realpath, '.git')
+    if os.path.isdir(repository):
+      return realpath
+    else:
+      if realpath == os.path.sep:
+        return None
+      else:
+        return self.repository_path(os.path.join(realpath, '..'))
 
 class Subversion(SCM):
   def __str__(self):
     return "subversion"
 
-  def repository_path(self, path):
-    repository = path
-    while os.path.isdir(os.path.join(repository, '.svn')):
-      repository = os.path.realpath(os.path.join(repository, '..'))
-    return repository
+  def repository_path(self, path="."):
+    realpath = os.path.realpath(path)
+    repository = os.path.join(realpath, '.svn')
+    if os.path.isdir(repository):
+      return self.repository_path(os.path.join(realpath, '..'))
+    else:
+      if realpath == os.path.sep:
+        return None
+      else:
+        return realpath
 
 class Mercurial(SCM):
   def __str__(self):
     return "mercurial"
 
   def repository_path(self, path):
-    repository = path
-    while not os.path.isdir(os.path.join(repository, '.hg')):
-      repository = os.path.realpath(os.path.join(repository, '..'))
-    return repository
+    realpath = os.path.realpath(path)
+    repository = os.path.join(realpath, '.hg')
+    if os.path.isdir(repository):
+      return realpath
+    else:
+      if realpath == os.path.sep:
+        return None
+      else:
+        return self.repository_path(os.path.join(realpath, '..'))
 
 # vim:set ft=python :

@@ -9,7 +9,7 @@ except ImportError:
 
 setup(
   name='fabric_deploy',
-  version='0.2.1',
+  version='0.2.2git',
   description='capistrano like deploy recipe for fabric',
   author='Yamashita Yuu',
   author_email='yamashita@geishatokyo.com',

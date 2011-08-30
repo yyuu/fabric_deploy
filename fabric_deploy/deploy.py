@@ -79,6 +79,7 @@ def setup_pybundle():
 def default():
   update()
   restart()
+  cleanup()
 
 @task
 @roles('app')

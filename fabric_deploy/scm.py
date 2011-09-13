@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
 import sys
 import os
 from fabric.api import *
@@ -37,17 +38,17 @@ class Git(SCM):
     }
 
     execute = []
-    execute.append('(test -d {destination} || {git} clone {repository} {destination})'.format(**kwargs))
-    execute.append('cd {destination}'.format(**kwargs))
-    execute.append('{git} checkout -b deploy {revision}'.format(**kwargs))
+    execute.append('(test -d %(destination)s || %(git)s clone %(repository)s %(destination)s)' % kwargs)
+    execute.append('cd %(destination)s' % kwargs)
+    execute.append('%(git)s checkout -b deploy %(revision)s' % kwargs)
     if perform_fetch:
-      execute.append('{git} fetch {remote} && {git} fetch --tags {remote}'.format(**kwargs))
-    execute.append('{git} reset --hard {revision}'.format(**kwargs))
+      execute.append('%(git)s fetch %(remote)s && %(git)s fetch --tags %(remote)s' % kwargs)
+    execute.append('%(git)s reset --hard %(revision)s' % kwargs)
     if fetch('git_enable_submodules'):
-      execute.append('{git} submodule init'.format(**kwargs))
-      execute.append('{git} submodule sync'.format(**kwargs))
-      execute.append('{git} submodule update --init --recursive'.format(**kwargs))
-    execute.append('{git} clean -d -x -f'.format(**kwargs))
+      execute.append('%(git)s submodule init' % kwargs)
+      execute.append('%(git)s submodule sync' % kwargs)
+      execute.append('%(git)s submodule update --init --recursive' % kwargs)
+    execute.append('%(git)s clean -d -x -f' % kwargs)
     return ' && '.join(execute)
 
   def __str__(self):

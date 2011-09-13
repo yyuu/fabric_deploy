@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
 from fabric.api import *
 from fabric.decorators import *
 import logging
@@ -39,6 +40,6 @@ def list_variables():
   ]
 
   for key in immediate_keys:
-    print("{key} = {val}".format(key=key, val=fetch(key)))
+    print("%(key)s = %(val)s" % dict(key=key, val=fetch(key)))
 
 # vim:set ft=python :

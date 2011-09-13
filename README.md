@@ -1,16 +1,16 @@
 # fabric_deploy
 
-## overview
+## Overview
 
 Capistrano like deploy recipe for Fabric.
 
 
-## requirements
+## Requirements
 
 * Fabric
 
 
-## usage
+## Usage
 
 this recipe is just a template for basic deploy procedures.
 you may need to override your own tasks in your fabfile.py.
@@ -32,7 +32,7 @@ clean up old applications.
     % fab development deploy.cleanup
 
 
-## examples
+## Examples
 
 this is a sample tasks for multistage deployment ("development" and "production").
 uses "supervisor" for service management.
@@ -54,15 +54,15 @@ following exapmle consists from 2 files of "./fabfile/\__init\__.py" and "./fabf
     options.set('application', 'myapp')
     options.set('repository', 'git@githum.com:yyuu/myapp.git')
     options.set('service_name',
-      (lambda: '{app}.{env}'.format(app=options.fetch('application'), env=options.fetch('current_stage'))))
+      (lambda: '%(app)s.%(env)s' % dict(app=options.fetch('application'), env=options.fetch('current_stage'))))
     options.set('virtualenv',
-      (lambda: '{dir}/virtualenv'.format(dir=fetch('shared_path'))))
+      (lambda: '%(dir)s/virtualenv' % dict(dir=fetch('shared_path'))))
     options.set('supervisord_pid',
-      (lambda: '{dir}/tmp/pids/supervisord.pid'.format(dir=options.fetch('current_path'))))
+      (lambda: '%(dir)s/tmp/pids/supervisord.pid' % dict(dir=options.fetch('current_path'))))
     options.set('supervisord_conf',
-      (lambda: '{dir}/supervisord.conf'.format(dir=options.fetch('current_path'))))
+      (lambda: '%(dir)s/supervisord.conf' % dict(dir=options.fetch('current_path'))))
     options.set('pybundle_path',
-      (lambda: '{dir}/system/myapp.pybundle'.format(dir=fetch('shared_path'))))
+      (lambda: '%(dir)s/system/myapp.pybundle' % dict(dir=fetch('shared_path'))))
     
     @task
     def development():
@@ -87,11 +87,11 @@ following exapmle consists from 2 files of "./fabfile/\__init\__.py" and "./fabf
     def restart():
       with cd(fetch('current_path')):
         result = sudo("""
-          (test -f {supervisord_pid} && kill -HUP `cat {supervisord_pid}`) || {virtualenv}/bin/supervisord -c {supervisord_conf}
-        """.format(**var('virtualenv', 'supervisord_pid', 'supervisord_conf')), user=fetch('runner'))
+          (test -f %(supervisord_pid)s && kill -HUP `cat %(supervisord_pid)s`) || %(virtualenv)s/bin/supervisord -c %(supervisord_conf)s
+        """ % var('virtualenv', 'supervisord_pid', 'supervisord_conf'), user=fetch('runner'))
     deploy.restart = restart
 
 
-## author
+## Author
 
 Yamashita, Yuu <yamashita@geishatokyo.com>

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
 import sys
 import os
 from fabric.api import *
@@ -42,8 +43,8 @@ class LocalCacheStrategy(Strategy):
 
     latest_release = fetch('latest_release')
     run("""
-      rsync -lrpt --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r {cached_path}/* {latest_release} && (echo {revision} > {release_path}/REVISION)
-    """.format(cached_path=self._remote_cache_subdir(cached_path),
+      rsync -lrpt --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r %(cached_path)s/* %(latest_release)s && (echo %(revision)s > %(release_path)s/REVISION)
+    """ % dict(cached_path=self._remote_cache_subdir(cached_path),
                latest_release=latest_release,
                revision=revision,
                release_path=fetch('release_path')))
@@ -63,8 +64,8 @@ class RemoteCacheStrategy(Strategy):
 
     latest_release = fetch('latest_release')
     run("""
-      rsync -lrpt --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r {cached_path}/* {latest_release} && (echo {revision} > {release_path}/REVISION)
-    """.format(cached_path=self._remote_cache_subdir(cached_path),
+      rsync -lrpt --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r %(cached_path)s/* %(latest_release)s && (echo %(revision)s > %(release_path)s/REVISION)
+    """ % dict(cached_path=self._remote_cache_subdir(cached_path),
                latest_release=latest_release,
                revision=revision,
                release_path=fetch('release_path')))

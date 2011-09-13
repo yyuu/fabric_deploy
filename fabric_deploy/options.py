@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
 import sys
 import os
 from fabric.api import *
@@ -34,17 +35,17 @@ cset('branch', 'master')
 cset('remote', 'origin')
 cset('git_enable_submodules', False)
 ## the base path of application deployment.
-cset('deploy_to', (lambda: '/u/apps/{name}'.format(name=fetch('application'))))
+cset('deploy_to', (lambda: '/u/apps/%(name)s' % dict(name=fetch('application'))))
 ## the path to the shared resources of deployed application. (such like logs)
-cset('shared_path', (lambda: '{dir}/shared'.format(dir=fetch('deploy_to'))))
+cset('shared_path', (lambda: '%(dir)s/shared' % dict(dir=fetch('deploy_to'))))
 ## the path to the currently deployed application. (symlink)
-cset('current_path', (lambda: '{dir}/current'.format(dir=fetch('deploy_to'))))
+cset('current_path', (lambda: '%(dir)s/current' % dict(dir=fetch('deploy_to'))))
 ## the path to the directory where the all deployed applications are in.
-cset('releases_path', (lambda: '{dir}/releases'.format(dir=fetch('deploy_to'))))
+cset('releases_path', (lambda: '%(dir)s/releases' % dict(dir=fetch('deploy_to'))))
 ## the unique name for new deployment.
 cset('release_name', (lambda: time.strftime('%Y%m%d%H%M%S')))
 ## the path to the new deployment of the application.
-cset('release_path', (lambda: '{dir}/{name}'.format(dir=fetch('releases_path'), name=fetch('release_name'))))
+cset('release_path', (lambda: '%(dir)s/%(name)s' % dict(dir=fetch('releases_path'), name=fetch('release_name'))))
 ## the path to the latest application.
 cset('latest_release', (lambda: fetch('release_path')))
 ## the list of all deployed applications.
@@ -54,13 +55,13 @@ cset('previous_release', (lambda: _get_previous_release()))
 cset('current_release', (lambda: _get_current_release()))
 ## how much number to keep deployed applications.
 cset('keep_releases', 5)
-cset('cached_path', (lambda: '{dir}/cached-copy'.format(dir=fetch('shared_path'))))
+cset('cached_path', (lambda: '%(dir)s/cached-copy' % dict(dir=fetch('shared_path'))))
 
 @task
 @roles('app')
 @runs_once
 def _get_releases():
-  releases = run('ls {releases_path}'.format(releases_path=fetch('releases_path'))).split()
+  releases = run('ls %(releases_path)s' % dict(releases_path=fetch('releases_path'))).split()
   releases.sort()
   return releases
 

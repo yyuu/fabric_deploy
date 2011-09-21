@@ -78,7 +78,7 @@ def setup_pybundle():
     requirement = 'packages.txt'
     result = local("""
       if test -f %(requirement)s; then pip install --requirement=%(requirement)s; else pip freeze --local > %(requirement)s; fi &&
-      if test %(application)s.pybundle -ot %(requirement)s; then
+      if test \! -f %(application)s.pybundle -o %(application)s.pybundle -ot %(requirement)s; then
         pip bundle --requirement=%(requirement)s %(application)s.pybundle;
       fi
     """ % var('application', requirement=requirement))

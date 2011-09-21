@@ -65,7 +65,7 @@ def setup_virtualenv():
       error('failed to create virtualenv.')
 
     result = run("""
-      . %(virtualenv)s/bin/activate && pip install %(pybundle_path)s
+      . %(virtualenv)s/bin/activate && pip install --upgrade %(pybundle_path)s
     """ % var('virtualenv', 'pybundle_path'))
     if result.failed:
       error('failed to install pybundle.')

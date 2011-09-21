@@ -7,9 +7,14 @@ except ImportError:
   use_setuptools()
   from setuptools import setup, find_packages
 
+import contextlib
+version = None
+with contextlib.closing(open('VERSION')) as fp:
+  version = fp.read().strip()
+
 setup(
   name='fabric_deploy',
-  version='0.4.2git',
+  version=version,
   description='capistrano like deploy recipe for fabric',
   author='Yamashita Yuu',
   author_email='yamashita@geishatokyo.com',

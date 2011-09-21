@@ -89,7 +89,6 @@ following exapmle consists from 2 files of "./fabfile/\__init\__.py" and "./fabf
         result = sudo("""
           (test -f %(supervisord_pid)s && kill -HUP `cat %(supervisord_pid)s`) || %(virtualenv)s/bin/supervisord -c %(supervisord_conf)s
         """ % var('virtualenv', 'supervisord_pid', 'supervisord_conf'), user=fetch('runner'))
-    deploy.restart = restart
 
 
 ## Author

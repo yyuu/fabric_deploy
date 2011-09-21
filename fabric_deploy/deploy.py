@@ -6,6 +6,7 @@ import os
 from fabric.api import *
 from fabric.decorators import *
 from fabric.colors import *
+import fabric.state
 import logging
 
 import options
@@ -26,6 +27,17 @@ def error(*args):
   logging.error(red(*args))
   abort(red(*args))
 
+def command(name):
+  if name.find('.') < 0:
+    name = "%s.%s" % (os.path.splitext(os.path.basename(__file__))[0], name)
+  commands = fabric.state.commands
+  for key in name.split('.'):
+    commands = commands.get(key)
+  return commands
+
+def invoke(name):
+  return command(name)()
+
 @task
 @roles('app')
 def setup():
@@ -37,7 +49,7 @@ def setup():
       error('failed to setup.')
 
   if fetch('virtualenv') is not None:
-    setup_virtualenv()
+    invoke('setup_virtualenv')
 
 @task
 @roles('app')
@@ -80,15 +92,15 @@ def setup_pybundle():
 @task(default=True)
 @roles('app')
 def default():
-  update()
-  restart()
-  cleanup()
+  invoke('update')
+  invoke('restart')
+  invoke('cleanup')
 
 @task
 @roles('app')
 def update():
-  update_code()
-  symlink()
+  invoke('update_code')
+  invoke('symlink')
 
 @task
 @roles('app')
@@ -99,7 +111,7 @@ def update_code():
     run('rm -rf %(latest_release)s; true' % var('latest_release'))
     error('failed to update code. (%(reason)s)' % dict(reason=str(e)))
 
-  finalize_update()
+  invoke('finalize_update')
 
 @task
 @roles('app')
@@ -128,7 +140,7 @@ def symlink():
     result = run('rm -f %(current_path)s && ln -s %(latest_release)s %(current_path)s' % var('current_path', 'latest_release'))
     if result.failed:
       alert('failed to update symlink. try to rollback.')
-      rollback()
+      invoke('rollback')
 
 @task
 @roles('app')

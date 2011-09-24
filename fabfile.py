@@ -43,59 +43,116 @@ def list():
   for key in immediate_keys:
     print("%(key)s = %(val)s" % dict(key=key, val=fetch(key)))
 
-def parse_version(s):
-  parsed = []
-  for n in s.strip().split('.'):
-    if not n.isdigit():
-      m = re.match('[0-9]+', n)
-      n = m.group() if m is not None else 0
-    parsed.append(int(n))
-  return parsed
+class Version(object):
+  def __init__(self, filename='VERSION'):
+    self.filename = filename
+    self.major = self.minor = self.subminor = 0
+    self.identifier = None
+    self.modified = False
+    self.update()
 
-def read_version():
-  with contextlib.closing(open('VERSION')) as fp:
-    return fp.read()
+  def update(self):
+    self.parse(self._read())
 
-def write_version(s):
-  with contextlib.closing(open('VERSION', 'w')) as fp:
-    fp.write(s)
+  def commit(self):
+    saved = self.modified
+    if self.modified:
+      self._write(self.unparse(self.major, self.minor, self.subminor, self.identifier))
+      local('git commit --all --message="version bumped to %s."' % (version))
+    self.modified = False
+    return saved
 
-def get_version_info():
-  return parse_version(read_version())
+  def parse(self, s):
+    parsed = s.split('.')
+    self.major, _ = self._parse_entity(parsed[0])
+    self.minor, _ = self._parse_entity(parsed[1])
+    self.subminor, self.identifier = self._parse_entity(parsed[2])
 
-def put_version_info(version_info, release=False):
-  version = ".".join([ str(n) for n in version_info ])
-  if not release:
-    version += 'git'
-  write_version(version)
-  local('git commit --all --message="version bumped to %s."' % (version))
+  def _parse_entity(self, s):
+    if s.isdigit():
+      return (int(s), None)
+    else:
+      m = re.search('[0-9]+', s)
+      if m is None:
+        return (0, s)
+      else:
+        o = re.search('[^0-9]+', s)
+        return (int(m.group()), o.group())
+
+  def unparse(self, major=0, minor=0, subminor=0, identifier=None):
+    s = '.'.join([ str(n) for n in [major, minor, subminor]])
+    if identifier is not None:
+      s += identifier
+    return s
+
+  def increase_major(self, identifier=None):
+    if identifier == self.identifier:
+      self.major += 1
+      self.minor = 0
+      self.subminor = 0
+    else:
+      if self.identifier is None:
+        self.major += 1
+        self.minor = 0
+        self.subminor = 0
+      self.identifier = identifier
+      self.modified = True
+
+  def increase_minor(self, identifier=None):
+    if identifier == self.identifier:
+      self.minor += 1
+      self.subminor = 0
+    else:
+      if self.identifier is None:
+        self.minor += 1
+        self.subminor = 0
+      self.identifier = identifier
+      self.modified = True
+
+  def increase_subminor(self, identifier=None):
+    if identifier == self.identifier:
+      self.subminor +=1
+      self.modified = True
+    else:
+      if self.identifier is None:
+        self.subminor +=1
+      self.identifier = identifier
+      self.modified = True
+
+  def __str__(self):
+    return self.unparse(self.major, self.minor, self.subminor, self.identifier)
+
+  def _read(self):
+    with contextlib.closing(open(self.filename)) as fp:
+      return fp.read().strip()
+
+  def _write(self, s):
+    with contextlib.closing(open(self.filename, 'w')) as fp:
+      fp.write(s + "\n")
+
+version = Version()
 
 @task
 def bump(release=False):
-  version_info = get_version_info()
-  target = 2
-  version_info[target] += 1
-  for i in xrange(target+1, len(version_info)):
-    version_info[i] = 0
-  put_version_info(version_info, release)
+  bump_subminor(release)
+
+@task
+def bump_subminor(release=False):
+  identifier = 'git' if not release else None
+  version.increase_subminor(identifier)
+  version.commit()
 
 @task
 def bump_minor(release=False):
-  version_info = get_version_info()
-  target = 1
-  version_info[target] += 1
-  for i in xrange(target+1, len(version_info)):
-    version_info[i] = 0
-  put_version_info(version_info, release)
+  identifier = 'git' if not release else None
+  version.increase_minor(identifier)
+  version.commit()
 
 @task
 def bump_major(release=False):
-  version_info = get_version_info()
-  target = 0
-  version_info[target] += 1
-  for i in xrange(target+1, len(version_info)):
-    version_info[i] = 0
-  put_version_info(version_info, release)
+  identifier = 'git' if not release else None
+  version.increase_major(identifier)
+  version.commit()
 
 def try_release(major=False, minor=False, release=False):
   clean()
@@ -111,7 +168,7 @@ def try_release(major=False, minor=False, release=False):
 @task
 def release(major=False, minor=False):
   try_release(major=major, minor=minor, release=True)
-  local('git tag release/%s' % (read_version()))
+  local('git tag release/%s' % (version))
   upload()
   bump(release=False)
 
@@ -135,7 +192,6 @@ def package():
 def upload():
   clean()
   test()
-  package()
-  local('python setup.py upload')
+  local('python setup.py build bdist bdist_egg sdist upload')
 
 # vim:set ft=python :

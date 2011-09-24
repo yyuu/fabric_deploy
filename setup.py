@@ -18,7 +18,7 @@ setup(
   description='capistrano like deploy recipe for fabric',
   author='Yamashita Yuu',
   author_email='yamashita@geishatokyo.com',
-  url='http://www.geishatokyo.com/',
+  url='https://github.com/yyuu/fabric_deploy',
   install_requires=[
     'Fabric>=1.2',
   ],

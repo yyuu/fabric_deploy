@@ -96,10 +96,17 @@ strategy_table = {
 }
 cset('strategy', (lambda: strategy_table.get(fetch('deploy_via'))()))
 
+## deployment user.
+set('user', 'deploy')
+
 ## application runner user.
 cset('runner', 'app')
 
 ## deploy sub tree of the repository if deploy_subdir was specified.
 #cset('deploy_subdir', 'path/to/somewhere')
+
+cset('virtualenv', (lambda: '%(dir)s/virtualenv' % dict(dir=fetch('shared_path'))))
+cset('pybundle_path', (lambda: '/tmp/%(name)s.pybundle' % dict(name=fetch('application'))))
+cset('service_name', (lambda: fetch('application')))
 
 # vim:set ft=python :

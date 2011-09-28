@@ -12,39 +12,51 @@ Capistrano like deploy recipe for Fabric.
 
 ## Usage
 
-this recipe is just a template for basic deploy procedures.
-you may need to override your own tasks in your fabfile.py.
+This recipe is just a template for basic deploy procedures.
+You may need to override your own tasks in your fabfile.py.
 
-initialize directory structure for "development" stage.
+Initialize directory structure for "development" stage.
 
     % fab development deploy.setup
 
-deploy application to "development" stage.
+Deploy application to "development" stage.
 
     % fab development deploy
 
-rollback to previously deployed application.
+Rollback to previously deployed application.
 
     % fab development deploy.rollback
 
-clean up old applications.
+Clean up old applications.
 
     % fab development deploy.cleanup
 
 
+## Privilege configurations
+
+This recipe assumes that you can ssh by user named "deploy" and "app" by default.
+
+* deploy (user)
+** Used for application deployment.
+** Belongs same group as app.
+** sudo(8) should be granted without password.
+* app (runner)
+** Used for running applications
+** Belongs same group as deploy.
+** No sudo(8) required.
+
+You can change these names by overriding "user" and "runner" options.
+
+
 ## Examples
 
-this is a sample tasks for multistage deployment ("development" and "production").
-uses "supervisor" for service management.
+Following is a sample tasks for multistage deployment ("development" and "production").
+Uses "supervisord" for service management.  This exapmle consists from 2 files.
 
-following exapmle consists from 2 files of "./fabfile/\__init\__.py" and "./fabfile/deploy.py".
+* ./fabfile/\__init\__.py - Basic configuration for deployment
+* ./fabfile/deploy.py - Overridden tasks for your deployment
 
-* "./fabfile/\__init\__.py"
-** basic configuration for deployment
-* "./fabfile/deploy.py"
-** overridden tasks for your deployment
-
-"./fabfile/\__init\__.py"
+./fabfile/\__init\__.py
 
     from fabric.api import *
     from fabric_deploy import options
@@ -53,34 +65,25 @@ following exapmle consists from 2 files of "./fabfile/\__init\__.py" and "./fabf
     options.set('scm', 'git')
     options.set('application', 'myapp')
     options.set('repository', 'git@githum.com:yyuu/myapp.git')
-    options.set('service_name',
-      (lambda: '%(app)s.%(env)s' % dict(app=options.fetch('application'), env=options.fetch('current_stage'))))
-    options.set('virtualenv',
-      (lambda: '%(dir)s/virtualenv' % dict(dir=fetch('shared_path'))))
     options.set('supervisord_pid',
       (lambda: '%(dir)s/tmp/pids/supervisord.pid' % dict(dir=options.fetch('current_path'))))
     options.set('supervisord_conf',
       (lambda: '%(dir)s/supervisord.conf' % dict(dir=options.fetch('current_path'))))
-    options.set('pybundle_path',
-      (lambda: '%(dir)s/system/myapp.pybundle' % dict(dir=fetch('shared_path'))))
     
     @task
     def development():
-      options.set('current_stage', 'production')
-      if options.fetch('user'): env.user = options.fetch('user')
+      options.set('current_stage', 'development')
       env.roledefs.update({'app': [ 'alpha' ] })
     
     @task
     def production():
       options.set('current_stage', 'production')
-      if options.fetch('user'): env.user = options.fetch('user')
       env.roledefs.update({ 'app': [ 'zulu' ] })
 
 
-"./fabfile/deploy.py"
+./fabfile/deploy.py
 
     from fabric_deploy.deploy import *
-    from fabric_deploy import deploy
     
     @task
     @roles('app')

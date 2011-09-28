@@ -8,6 +8,7 @@ from fabric.decorators import *
 from fabric.colors import *
 import fabric.state
 import logging
+import StringIO
 
 import options
 from options import fetch
@@ -39,7 +40,7 @@ def invoke(name):
   return command(name)()
 
 @task
-@roles('app')
+@roles('app', 'web')
 def setup():
   with settings(warn_only=True):
     dirs = [fetch('deploy_to'), fetch('releases_path'), fetch('shared_path')]
@@ -52,7 +53,7 @@ def setup():
     invoke('setup_virtualenv')
 
 @task
-@roles('app')
+@roles('app', 'web')
 def setup_virtualenv():
   setup_pybundle()
   with settings(warn_only=True):
@@ -71,7 +72,7 @@ def setup_virtualenv():
       error('failed to install pybundle.')
 
 @task
-@roles('app')
+@roles('app', 'web')
 @runs_once
 def setup_pybundle():
   with settings(warn_only=True):
@@ -90,20 +91,20 @@ def setup_pybundle():
       error('failed to upload pybundle.')
 
 @task(default=True)
-@roles('app')
+@roles('app', 'web')
 def default():
   invoke('update')
   invoke('restart')
   invoke('cleanup')
 
 @task
-@roles('app')
+@roles('app', 'web')
 def update():
   invoke('update_code')
   invoke('symlink')
 
 @task
-@roles('app')
+@roles('app', 'web')
 def update_code():
   try:
     fetch('strategy').deploy()
@@ -114,7 +115,7 @@ def update_code():
   invoke('finalize_update')
 
 @task
-@roles('app')
+@roles('app', 'web')
 def finalize_update():
   with settings(warn_only=True):
     result = run("""
@@ -134,7 +135,7 @@ def finalize_update():
       run('chmod -R g+w %(latest_release)s' % var('latest_release'))
 
 @task
-@roles('app')
+@roles('app', 'web')
 def symlink():
   with settings(warn_only=True):
     result = run('rm -f %(current_path)s && ln -s %(latest_release)s %(current_path)s' % var('current_path', 'latest_release'))
@@ -163,7 +164,7 @@ def status():
   sudo('service %(service_name)s status' % var('service_name'))
 
 @task
-@roles('app')
+@roles('app', 'web')
 def rollback():
   previous_release = fetch('previous_release')
   if previous_release is None:
@@ -176,7 +177,7 @@ def rollback():
   """ % var('current_path', 'current_release'))
 
 @task
-@roles('app')
+@roles('app', 'web')
 def cleanup():
   releases = fetch('releases')
   keep_releases = int(fetch('keep_releases'))
@@ -184,5 +185,23 @@ def cleanup():
   if keep_releases < len(releases):
     delete_releases = map(lambda release: os.path.join(releases_path, release), releases[0:-keep_releases])
     run('rm -rf %(delete_releases)s' % dict(delete_releases=' '.join(delete_releases)))
+
+@task
+@roles('web')
+def disable(**kwargs):
+  with settings(warn_only=True):
+    reason = kwargs.get('reason', 'maintenance')
+    until = kwargs.get('until', 'unknown')
+    body = '<html><body>%(reason)s until %(until)s</body></html>' % dict(reason=reason, until=until)
+    result = put(StringIO.StringIO(body), '%(shared_path)s/system/%(maintenance_basename)s.html' % var('shared_path', 'maintenance_basename'))
+    if result.failed:
+      invoke('enable')
+
+@task
+@roles('web')
+def enable():
+  run("""
+    rm -f %(shared_path)s/system/%(maintenance_basename)s.html
+  """ % var('shared_path', 'maintenance_basename'))
 
 # vim:set ft=python :

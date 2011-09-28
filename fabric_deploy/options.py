@@ -109,4 +109,6 @@ cset('virtualenv', (lambda: '%(dir)s/virtualenv' % dict(dir=fetch('shared_path')
 cset('pybundle_path', (lambda: '/tmp/%(name)s.pybundle' % dict(name=fetch('application'))))
 cset('service_name', (lambda: fetch('application')))
 
+cset('maintenance_basename', 'maintenance')
+
 # vim:set ft=python :

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import with_statement
 try:
   from setuptools import setup, find_packages
 except ImportError:

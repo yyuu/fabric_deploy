@@ -186,12 +186,12 @@ def test():
 
 @task
 def package():
-  local('python setup.py build bdist bdist_egg sdist')
+  local('python setup.py sdist bdist_egg')
 
 @task
 def upload():
   clean()
   test()
-  local('python setup.py build bdist bdist_egg sdist upload')
+  local('python setup.py sdist bdist_egg upload')
 
 # vim:set ft=python :

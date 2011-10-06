@@ -20,6 +20,7 @@ setup(
   author='Yamashita Yuu',
   author_email='yamashita@geishatokyo.com',
   url='https://github.com/yyuu/fabric_deploy',
+  include_package_data=True,
   install_requires=[
     'Fabric>=1.2',
   ],

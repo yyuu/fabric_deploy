@@ -55,7 +55,7 @@ def setup():
 @task
 @roles('app', 'web')
 def setup_virtualenv():
-  setup_pybundle()
+  invoke('setup_pybundle')
   with settings(warn_only=True):
     result = run("""
       if ! test -d %(virtualenv)s; then
@@ -65,8 +65,16 @@ def setup_virtualenv():
     if result.failed:
       error('failed to create virtualenv.')
 
+    invoke('upload_pybundle')
+
     result = run("""
-      . %(virtualenv)s/bin/activate && pip install --upgrade %(pybundle_path)s
+      test -d %(virtualenv)s/build && rm -rf %(virtualenv)s/build; true
+    """ % var('virtualenv', 'pybundle_path'))
+    if result.failed:
+      error('failed to cleanup old bulid.')
+
+    result = run("""
+      . %(virtualenv)s/bin/activate && easy_install pip && pip install --upgrade %(pybundle_path)s
     """ % var('virtualenv', 'pybundle_path'))
     if result.failed:
       error('failed to install pybundle.')
@@ -78,7 +86,7 @@ def setup_pybundle():
   with settings(warn_only=True):
     requirement = 'packages.txt'
     result = local("""
-      if test -f %(requirement)s; then pip install --requirement=%(requirement)s; else pip freeze --local > %(requirement)s; fi &&
+      if test -f %(requirement)s; then pip install --upgrade --requirement=%(requirement)s; else pip freeze --local > %(requirement)s; fi &&
       if test \! -f %(application)s.pybundle -o %(application)s.pybundle -ot %(requirement)s; then
         pip bundle --requirement=%(requirement)s %(application)s.pybundle;
       fi
@@ -86,6 +94,10 @@ def setup_pybundle():
     if result.failed:
       error('failed to create pybundle.')
 
+@task
+@roles('app', 'web')
+def upload_pybundle():
+  with settings(warn_only=True):
     result = put('%(application)s.pybundle' % var('application'), fetch('pybundle_path'))
     if result.failed:
       error('failed to upload pybundle.')

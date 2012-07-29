@@ -81,6 +81,23 @@ class Subversion(SCM):
         return realpath
 
 class Mercurial(SCM):
+  def head(self):
+    if fetch('branch') is None:
+      return "tip"
+    return fetch('branch')
+
+  def checkout(self, revision, destination, *args, **kwargs):
+    kwargs = {
+      'hg': fetch('hg', 'hg'),
+      'repository': fetch('repository'),
+      'destination': destination,
+      'revision': revision,
+    }
+    execute = []
+    execute.append('%(hg)s clone %(repository)s %(destination)s' % kwargs)
+    execute.append('%(hg)s update --repository %(destination)s --clean %(revision)s' % kwargs)
+    return ' && '.join(execute)
+
   def __str__(self):
     return "mercurial"
 

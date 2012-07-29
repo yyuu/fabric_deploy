@@ -25,6 +25,26 @@ class Strategy(object):
       cached_path = os.path.join(cached_path, deploy_subdir)
     return cached_path
 
+class CheckoutStrategy(Strategy):
+  def deploy(self):
+    run(self.command() + "&&" + self.mark())
+
+  def command(self):
+    source = fetch('source')
+    revision = fetch('revision')
+    destination = fetch('release_path')
+    return source.checkout(revision, destination, perform_fetch=False)
+
+  def mark(self):
+    kwargs = {
+      'release_path': fetch('release_path'),
+      'revision': fetch('revision'),
+    }
+    return 'echo %(revision)s > %(release_path)s/REVISION' % kwargs
+
+  def __str__(self):
+    return "checkout"
+
 class LocalCacheStrategy(Strategy):
   def deploy(self):
     cached_path = fetch('cached_path')

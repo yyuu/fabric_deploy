@@ -85,6 +85,7 @@ def _get_current_release():
 
 source_table = {
   'git': scm.Git,
+  'mercurial': scm.Mercurial,
 }
 cset('source', (lambda: source_table.get(fetch('scm'))()))
 cset('revision', (lambda: fetch('source').head()))

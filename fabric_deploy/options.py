@@ -93,6 +93,7 @@ cset('revision', (lambda: fetch('source').head()))
 cset('deploy_via', 'local_cache')
 strategy_table = {
   'local_cache': strategy.LocalCacheStrategy,
+  'checkout': strategy.CheckoutStrategy,
 }
 cset('strategy', (lambda: strategy_table.get(fetch('deploy_via'))()))
 

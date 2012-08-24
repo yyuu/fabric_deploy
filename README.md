@@ -37,13 +37,13 @@ Clean up old applications.
 This recipe assumes that you can ssh by user named "deploy" and "app" by default.
 
 * deploy (user)
-** Used for application deployment.
-** Belongs same group as app.
-** sudo(8) should be granted without password.
+  * Used for application deployment.
+  * Belongs same group as app.
+  * sudo(8) should be granted without password.
 * app (runner)
-** Used for running applications
-** Belongs same group as deploy.
-** No sudo(8) required.
+  * Used for running applications
+  * Belongs same group as deploy.
+  * No sudo(8) required.
 
 You can change these names by overriding "user" and "runner" options.
 
@@ -53,10 +53,10 @@ You can change these names by overriding "user" and "runner" options.
 Following is a sample tasks for multistage deployment ("development" and "production").
 Uses "supervisord" for service management.  This exapmle consists from 2 files.
 
-* ./fabfile/\__init\__.py - Basic configuration for deployment
-* ./fabfile/deploy.py - Overridden tasks for your deployment
+* `./fabfile/__init__.py` - Basic configuration for deployment
+* `./fabfile/deploy.py` - Overridden tasks for your deployment
 
-./fabfile/\__init\__.py
+`./fabfile/__init__.py`
 
     from fabric.api import *
     from fabric_deploy import options
@@ -81,7 +81,7 @@ Uses "supervisord" for service management.  This exapmle consists from 2 files.
       env.roledefs.update({ 'app': [ 'zulu' ] })
 
 
-./fabfile/deploy.py
+`./fabfile/deploy.py`
 
     from fabric_deploy.deploy import *
     
